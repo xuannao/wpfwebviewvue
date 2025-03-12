@@ -1,0 +1,210 @@
+﻿<Window
+    x:Class="ba.config.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:cv="clr-namespace:ba.config.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ba.config.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:ba.config.ViewModels"
+    x:Name="window"
+    Title="{Binding Title}"
+    Width="800"
+    Height="450"
+    MinWidth="300"
+    MinHeight="150"
+    d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+    BorderThickness="{Binding RelativeSource={RelativeSource Mode=Self}, Path=WindowState, Converter={StaticResource WindowStateToThicknessConverter}}"
+    Icon="{Binding TitleIcon}"
+    ResizeMode="CanResize"
+    WindowStyle="SingleBorderWindow"
+    mc:Ignorable="d">
+    <WindowChrome.WindowChrome>
+        <WindowChrome
+            CornerRadius="{x:Static SystemParameters.WindowCornerRadius}"
+            ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"
+            UseAeroCaptionButtons="False">
+            <WindowChrome.CaptionHeight>
+                <MultiBinding Converter="{StaticResource CaptionHeightConverter}">
+                    <Binding ElementName="titlebar" Path="ActualHeight" />
+                    <Binding ElementName="window" Path="BorderThickness.Top" />
+                </MultiBinding>
+            </WindowChrome.CaptionHeight>
+        </WindowChrome>
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding TitleBarBackground}" />
+            <Setter Property="Foreground" Value="{Binding TitleBarForground}" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="0"
+                            SnapsToDevicePixels="True">
+                            <ContentPresenter
+                                x:Name="contentPresenter"
+                                Margin="0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Focusable="False"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="border" Property="Background" Value="{Binding TitleBarButtonBackground}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style
+            x:Key="TitleBarCloseButtonStyle"
+            BasedOn="{StaticResource TitleBarButtonStyle}"
+            TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="0"
+                            SnapsToDevicePixels="True">
+                            <ContentPresenter
+                                x:Name="contentPresenter"
+                                Margin="0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Focusable="False"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="border" Property="Background" Value="Red" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="SourceInitialized" SourceObject="{Binding ElementName=window}">
+            <behaviors:InvokeCommandAction Command="{Binding SourceInitCommand}" CommandParameter="{Binding ElementName=maximizeRestoreButton}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+    <Grid x:Name="rootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid
+            x:Name="titlebar"
+            Grid.Row="0"
+            Height="30"
+            Background="{Binding TitleBarBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" MinWidth="40" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!--  remove or set Visibility="Collapsed" if you don't want to display an icon  -->
+            <Image
+                x:Name="icon"
+                Grid.Column="0"
+                Width="24"
+                Height="24"
+                Margin="5,0,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Source="{Binding ElementName=window, Path=Icon}" />
+
+            <DockPanel Grid.Column="1" HorizontalAlignment="Stretch">
+
+                <!--  remove or set Visibility="Collapsed" if you don't want to display the window title  -->
+                <TextBlock
+                    Margin="10,0,10,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Foreground="{Binding TitleBarForground}"
+                    Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=Title}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="NoWrap" />
+            </DockPanel>
+
+            <!--  remove or set Visibility="Collapsed" if you don't want a custom button  -->
+            <!--<Button
+                Grid.Column="2"
+                Style="{StaticResource TitleBarButtonStyle}"
+                ToolTip="Settings">
+                <Path
+                    Width="16"
+                    Height="16"
+                    Data="M 51.22 21 h -5.052 c -0.812 0 -1.481 -0.447 -1.792 -1.197 s -0.153 -1.54 0.42 -2.114 l 3.572 -3.571 c 0.525 -0.525 0.814 -1.224 0.814 -1.966 c 0 -0.743 -0.289 -1.441 -0.814 -1.967 l -4.553 -4.553 c -1.05 -1.05 -2.881 -1.052 -3.933 0 l -3.571 3.571 c -0.574 0.573 -1.366 0.733 -2.114 0.421 C 33.447 9.313 33 8.644 33 7.832 V 2.78 C 33 1.247 31.753 0 30.22 0 H 23.78 C 22.247 0 21 1.247 21 2.78 v 5.052 c 0 0.812 -0.447 1.481 -1.197 1.792 c -0.748 0.313 -1.54 0.152 -2.114 -0.421 l -3.571 -3.571 c -1.052 -1.052 -2.883 -1.05 -3.933 0 l -4.553 4.553 c -0.525 0.525 -0.814 1.224 -0.814 1.967 c 0 0.742 0.289 1.44 0.814 1.966 l 3.572 3.571 c 0.573 0.574 0.73 1.364 0.42 2.114 S 8.644 21 7.832 21 H 2.78 C 1.247 21 0 22.247 0 23.78 v 6.439 C 0 31.753 1.247 33 2.78 33 h 5.052 c 0.812 0 1.481 0.447 1.792 1.197 s 0.153 1.54 -0.42 2.114 l -3.572 3.571 c -0.525 0.525 -0.814 1.224 -0.814 1.966 c 0 0.743 0.289 1.441 0.814 1.967 l 4.553 4.553 c 1.051 1.051 2.881 1.053 3.933 0 l 3.571 -3.572 c 0.574 -0.573 1.363 -0.731 2.114 -0.42 c 0.75 0.311 1.197 0.98 1.197 1.792 v 5.052 c 0 1.533 1.247 2.78 2.78 2.78 h 6.439 c 1.533 0 2.78 -1.247 2.78 -2.78 v -5.052 c 0 -0.812 0.447 -1.481 1.197 -1.792 c 0.751 -0.312 1.54 -0.153 2.114 0.42 l 3.571 3.572 c 1.052 1.052 2.883 1.05 3.933 0 l 4.553 -4.553 c 0.525 -0.525 0.814 -1.224 0.814 -1.967 c 0 -0.742 -0.289 -1.44 -0.814 -1.966 l -3.572 -3.571 c -0.573 -0.574 -0.73 -1.364 -0.42 -2.114 S 45.356 33 46.168 33 h 5.052 c 1.533 0 2.78 -1.247 2.78 -2.78 V 23.78 C 54 22.247 52.753 21 51.22 21 z z M 27 18 c -4.963 0 -9 4.037 -9 9 s 4.037 9 9 9 s 9 -4.037 9 -9 S 31.963 18 27 18 z"
+                    Stretch="Uniform"
+                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                    StrokeThickness="1" />
+            </Button>-->
+
+            <!--  standard system buttons (minimize, maximize/restore, close)  -->
+            <Button
+                Grid.Column="2"
+                Command="{Binding MinimizeCommand}"
+                CommandParameter="{Binding ElementName=window}"
+                Style="{StaticResource TitleBarButtonStyle}">
+                <Path
+                    Width="36"
+                    Height="32"
+                    Data="M 13,15 H 23"
+                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                    StrokeThickness="1" />
+            </Button>
+
+            <Button
+                x:Name="maximizeRestoreButton"
+                Grid.Column="3"
+                Command="{Binding MaximizeCommand}"
+                CommandParameter="{Binding ElementName=window}"
+                Style="{StaticResource TitleBarButtonStyle}">
+                <Path
+                    Width="36"
+                    Height="32"
+                    Data="{Binding ElementName=window, Path=WindowState, Converter={StaticResource WindowStateToPathConverter}}"
+                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                    StrokeThickness="1" />
+            </Button>
+
+            <Button
+                Grid.Column="4"
+                Command="{Binding CloseCommand}"
+                CommandParameter="{Binding ElementName=window}"
+                Style="{StaticResource TitleBarCloseButtonStyle}">
+                <Path
+                    Width="36"
+                    Height="32"
+                    Data="M 13,11 22,20 M 13,20 22,11"
+                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                    StrokeThickness="1" />
+            </Button>
+        </Grid>
+
+        <TextBlock
+            Grid.Row="1"
+            Margin="5"
+            Text="Content" />
+    </Grid>
+</Window>

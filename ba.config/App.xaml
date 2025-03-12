@@ -1,0 +1,25 @@
+﻿<Application
+    x:Class="ba.config.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cv="clr-namespace:ba.config.Converters"
+    xmlns:local="clr-namespace:ba.config">
+    <Application.Resources>
+
+        <ResourceDictionary>
+            <cv:WindowStateToThicknessConverter x:Key="WindowStateToThicknessConverter" />
+            <cv:WindowStateToPathConverter x:Key="WindowStateToPathConverter" />
+            <cv:CaptionHeightConverter x:Key="CaptionHeightConverter" />
+
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./Themes/Style.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+
+
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>
