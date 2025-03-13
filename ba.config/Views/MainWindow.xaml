@@ -2,23 +2,22 @@
     x:Class="ba.config.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:cv="clr-namespace:ba.config.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:ba.config.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewmodels="clr-namespace:ba.config.ViewModels"
+    xmlns:vms="clr-namespace:ba.config.ViewModels"
+    xmlns:vs="clr-namespace:ba.config.Views"
     x:Name="window"
     Title="{Binding Title}"
     Width="800"
     Height="450"
     MinWidth="300"
     MinHeight="150"
-    d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+    d:DataContext="{d:DesignInstance Type=vms:MainWindowViewModel}"
+    Background="{Binding TitleBarBackground}"
     BorderThickness="{Binding RelativeSource={RelativeSource Mode=Self}, Path=WindowState, Converter={StaticResource WindowStateToThicknessConverter}}"
     Icon="{Binding TitleIcon}"
     ResizeMode="CanResize"
-    WindowStyle="SingleBorderWindow"
+    WindowStyle="None"
     mc:Ignorable="d">
     <WindowChrome.WindowChrome>
         <WindowChrome
@@ -98,56 +97,71 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <DataTemplate DataType="{x:Type vms:CustomWebViewModel}">
+            <vs:CustomWebView />
+        </DataTemplate>
     </Window.Resources>
-    <behaviors:Interaction.Triggers>
-        <behaviors:EventTrigger EventName="SourceInitialized" SourceObject="{Binding ElementName=window}">
-            <behaviors:InvokeCommandAction Command="{Binding SourceInitCommand}" CommandParameter="{Binding ElementName=maximizeRestoreButton}" />
-        </behaviors:EventTrigger>
-    </behaviors:Interaction.Triggers>
     <Grid x:Name="rootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid
-            x:Name="titlebar"
             Grid.Row="0"
-            Height="30"
-            Background="{Binding TitleBarBackground}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" MinWidth="40" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            Height="30.5"
+            Background="{Binding TitleBarButtonBackground}">
+            <Grid
+                x:Name="titlebar"
+                Grid.Row="0"
+                Height="30"
+                VerticalAlignment="Top"
+                Background="{Binding TitleBarBackground}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="40" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <!--  remove or set Visibility="Collapsed" if you don't want to display an icon  -->
-            <Image
-                x:Name="icon"
-                Grid.Column="0"
-                Width="24"
-                Height="24"
-                Margin="5,0,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Source="{Binding ElementName=window, Path=Icon}" />
-
-            <DockPanel Grid.Column="1" HorizontalAlignment="Stretch">
-
-                <!--  remove or set Visibility="Collapsed" if you don't want to display the window title  -->
-                <TextBlock
-                    Margin="10,0,10,0"
-                    HorizontalAlignment="Left"
+                <!--  remove or set Visibility="Collapsed" if you don't want to display an icon  -->
+                <Image
+                    x:Name="icon"
+                    Grid.Column="0"
+                    Width="24"
+                    Height="24"
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Foreground="{Binding TitleBarForground}"
-                    Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=Title}"
-                    TextTrimming="CharacterEllipsis"
-                    TextWrapping="NoWrap" />
-            </DockPanel>
+                    Source="{Binding ElementName=window, Path=Icon}" />
 
-            <!--  remove or set Visibility="Collapsed" if you don't want a custom button  -->
-            <!--<Button
+                <StackPanel
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Horizontal">
+
+                    <!--  remove or set Visibility="Collapsed" if you don't want to display the window title  -->
+                    <TextBlock
+                        Margin="10,0,10,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Foreground="{Binding TitleBarForground}"
+                        Text="{Binding Title}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="NoWrap" />
+                    <TextBlock
+                        Margin="10,0,10,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Foreground="{Binding TitleBarForground}"
+                        Text="{Binding TitleSecond}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="NoWrap" />
+                </StackPanel>
+
+                <!--  remove or set Visibility="Collapsed" if you don't want a custom button  -->
+                <!--<Button
                 Grid.Column="2"
                 Style="{StaticResource TitleBarButtonStyle}"
                 ToolTip="Settings">
@@ -160,51 +174,55 @@
                     StrokeThickness="1" />
             </Button>-->
 
-            <!--  standard system buttons (minimize, maximize/restore, close)  -->
-            <Button
-                Grid.Column="2"
-                Command="{Binding MinimizeCommand}"
-                CommandParameter="{Binding ElementName=window}"
-                Style="{StaticResource TitleBarButtonStyle}">
-                <Path
-                    Width="36"
-                    Height="32"
-                    Data="M 13,15 H 23"
-                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                    StrokeThickness="1" />
-            </Button>
+                <!--  standard system buttons (minimize, maximize/restore, close)  -->
+                <Button
+                    Grid.Column="2"
+                    Command="{Binding MinimizeCommand}"
+                    CommandParameter="{Binding ElementName=window}"
+                    Style="{StaticResource TitleBarButtonStyle}">
+                    <Path
+                        Width="36"
+                        Height="32"
+                        Data="M 13,15 H 23"
+                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                        StrokeThickness="1" />
+                </Button>
 
-            <Button
-                x:Name="maximizeRestoreButton"
-                Grid.Column="3"
-                Command="{Binding MaximizeCommand}"
-                CommandParameter="{Binding ElementName=window}"
-                Style="{StaticResource TitleBarButtonStyle}">
-                <Path
-                    Width="36"
-                    Height="32"
-                    Data="{Binding ElementName=window, Path=WindowState, Converter={StaticResource WindowStateToPathConverter}}"
-                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                    StrokeThickness="1" />
-            </Button>
+                <Button
+                    x:Name="maximizeRestoreButton"
+                    Grid.Column="3"
+                    Command="{Binding MaximizeCommand}"
+                    CommandParameter="{Binding ElementName=window}"
+                    Style="{StaticResource TitleBarButtonStyle}">
+                    <Path
+                        Width="36"
+                        Height="32"
+                        Data="{Binding ElementName=window, Path=WindowState, Converter={StaticResource WindowStateToPathConverter}}"
+                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                        StrokeThickness="1" />
+                </Button>
 
-            <Button
-                Grid.Column="4"
-                Command="{Binding CloseCommand}"
-                CommandParameter="{Binding ElementName=window}"
-                Style="{StaticResource TitleBarCloseButtonStyle}">
-                <Path
-                    Width="36"
-                    Height="32"
-                    Data="M 13,11 22,20 M 13,20 22,11"
-                    Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                    StrokeThickness="1" />
-            </Button>
+                <Button
+                    Grid.Column="4"
+                    Command="{Binding CloseCommand}"
+                    CommandParameter="{Binding ElementName=window}"
+                    Style="{StaticResource TitleBarCloseButtonStyle}">
+                    <Path
+                        Width="36"
+                        Height="32"
+                        Data="M 13,11 22,20 M 13,20 22,11"
+                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                        StrokeThickness="1" />
+                </Button>
+            </Grid>
         </Grid>
-
-        <TextBlock
+        <Border
             Grid.Row="1"
-            Margin="5"
-            Text="Content" />
+            Margin="1,0,1,1"
+            Background="{Binding TitleBarBackground}"
+            BorderBrush="{Binding TitleBarBackground}"
+            BorderThickness="1,0,1,1">
+            <ContentControl Content="{Binding WebViewModel}" />
+        </Border>
     </Grid>
 </Window>
